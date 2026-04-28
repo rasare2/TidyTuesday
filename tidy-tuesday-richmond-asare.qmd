@@ -1,0 +1,98 @@
+---
+title: "Global Health Spending"
+subtitle: "TidyTuesday -- PMAP 8551/4551, Spring 2026"
+author: "Richmond Asare"
+date: "04/21/2026"
+date-format: "long"
+format:
+  html:
+    toc: true
+  typst: 
+    toc: true
+  pdf:
+    toc: true
+  docx:
+    toc: true
+---
+
+# Data description and cleaning
+
+```{r}
+#| label: loading-data
+#| warning: false
+#| message: false
+
+library(tidyverse)
+
+tuesdata <- tidytuesdayR::tt_load('2026-04-21')
+financing_schemes <- tuesdata$financing_schemes
+health_spending <- tuesdata$health_spending
+spending_purpose <- tuesdata$spending_purpose
+```
+
+# Out-of-pocket spending over time
+
+```{r}
+#| label: out-of-pocket-health-spending
+#| warning: false
+#| fig-width: 12
+#| fig-height: 7
+#| fig-alt: "Out-of-pocket health spending as a share of current of health expenditure for the 20 highest-burden countries, 2000-2023. Dashed line represents the 50% threshold."
+
+# Loading the Lato font into your R session
+if (.Platform$OS.type == "windows") {
+windowsFonts(`Lato` = windowsFont("Lato"))
+}
+
+# Top 20 highest-burden countries (OOP spending as share of health expenditure)
+oop_top20<- financing_schemes |> 
+  filter(
+    financing_scheme == "Household out-of-pocket payments (OOPS)",
+    unit == "% of current health expenditure"
+  ) |> 
+  group_by(country_name, iso3_code) |> 
+  slice_max(year, n = 1) |>
+  ungroup() |> 
+  slice_max(value, n = 20)
+  
+oop_top20_plot<- financing_schemes |> 
+  filter(
+    financing_scheme == "Household out-of-pocket payments (OOPS)",
+    unit == "% of current health expenditure",
+    country_name %in% oop_top20$country_name
+  ) |> 
+  mutate(country_name = fct_reorder(country_name, -value, .fun = last)) |> 
+  ggplot(aes(x = year, y= value)) +
+  geom_line(linewidth = 0.8, color = "#c0392b") +
+  geom_hline(yintercept = 50, linetype = "dashed",
+             color = "grey60", linewidth = 0.4) +
+  facet_wrap(vars(country_name), ncol = 5) +
+  scale_x_continuous(breaks = c(2000, 2010, 2023)) +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(
+    title = "Out-of-Pocket Spending Over Time",
+    subtitle = 
+    "Out-of-pocket health spending as a share of current of health expenditure for the 20 highest-burden countries, 2000-2023. Dashed line represents the 50% threshold.", 
+    caption = "Source: WHO Global Health Expenditure Database (GHED)",
+    x = NULL, y = "% of current health expenditure"
+  ) +
+  theme_minimal(base_size = 11, base_family = "Lato") +
+  theme(
+    plot.title = element_text(face = "bold"),
+    plot.subtitle = element_text(face = "italic"),
+    plot.caption  = element_text(hjust = 0),
+    strip.text = element_text(hjust = 0),
+    axis.title.y = element_text(hjust = 1),
+    panel.spacing = unit(0.8, "lines"),
+    axis.text.x = element_text(size = 8)
+  )
+  
+# Save the plot 
+ggsave(
+oop_top20_plot, filename = "out-of-pocket_plot.png",
+width = 12, height = 7, units = "in", bg = "transparent"
+)
+
+oop_top20_plot
+```
+
