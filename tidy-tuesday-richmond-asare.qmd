@@ -37,7 +37,7 @@ spending_purpose <- tuesdata$spending_purpose
 #| warning: false
 #| fig-width: 12
 #| fig-height: 7
-#| fig-alt: "Out-of-pocket health spending as a share of current of health expenditure for the 20 highest-burden countries, 2000-2023. Dashed line represents the 50% threshold."
+#| fig-alt: "Out-of-pocket health spending as a share of current health expenditure for the 20 highest-burden countries, 2000-2023. Dashed line represents the 50% threshold."
 
 # Loading the Lato font into your R session
 if (.Platform$OS.type == "windows") {
@@ -72,7 +72,7 @@ oop_top20_plot<- financing_schemes |>
   labs(
     title = "Out-of-Pocket Spending Over Time",
     subtitle = 
-    "Out-of-pocket health spending as a share of current of health expenditure for the 20 highest-burden countries, 2000-2023. Dashed line represents the 50% threshold.", 
+    "Out-of-pocket health spending as a share of current health expenditure for the 20 highest-burden countries, 2000-2023. Dashed line represents the 50% threshold.", 
     caption = "Source: WHO Global Health Expenditure Database (GHED)",
     x = NULL, y = "% of current health expenditure"
   ) +
